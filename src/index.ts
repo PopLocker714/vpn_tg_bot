@@ -61,3 +61,17 @@ Bun.serve({
     keyFile: "ssl/privkey.pem",
   }
 });
+
+Bun.serve({
+  port: 80,
+  fetch(req) {
+    const url = new URL(req.url);
+    url.protocol = 'https:';
+    return new Response(null, {
+      status: 301,
+      headers: {
+        Location: url.toString(),
+      },
+    });
+  },
+});
