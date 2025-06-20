@@ -56,8 +56,8 @@ app.post("*", async (c) => {
 Bun.serve({
   fetch: app.fetch,
   port: Bun.env.PORT, // или 443 если HTTPS
-
-  if (condition) {
-
+  tls: {
+    certFile: "ssl/cert.pem",
+    keyFile: "ssl/privkey.pem",
   }
 });
