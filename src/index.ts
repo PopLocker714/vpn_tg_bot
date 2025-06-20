@@ -53,4 +53,7 @@ app.post("*", async (c) => {
   return new Response("ok");
 });
 
-export default app;
+Bun.serve({
+  fetch: app.fetch,
+  port: Bun.env.PORT, // или 443 если HTTPS
+});
