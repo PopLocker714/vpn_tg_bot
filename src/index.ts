@@ -17,7 +17,7 @@ const client = makeTgBotClient({
 });
 
 app.get("/", (c) => {
-  return c.text("Hello, this is CatFlyVPN bot!");
+  return c.text("🔒 Hello from poploker.ru with HTTPS (self-signed)!");
 });
 
 app.post("*", async (c) => {
@@ -56,4 +56,8 @@ app.post("*", async (c) => {
 Bun.serve({
   fetch: app.fetch,
   port: Bun.env.PORT, // или 443 если HTTPS
+
+  if (condition) {
+
+  }
 });
