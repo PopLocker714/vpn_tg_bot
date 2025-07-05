@@ -1,6 +1,5 @@
 import { MESSAGE_EFFECTS } from "@effect-ak/tg-bot-client";
-import { Context, Plan } from "../types";
-import generateKey from "../common/generateKey";
+import { Context, PaymentTypeProvider, Plan } from "../types";
 import {
   createSubscription,
   getActiveSubscriptions,
@@ -11,6 +10,8 @@ import checkExpiredSubscription from "../common/subscriptions/checkExpiredSubscr
 import getInfoSubscribe from "../common/getInfoSubscribe";
 import subscribe from "../commands/subscribe";
 import { createKey } from "../db/queries/keys";
+import { createPayment } from "../db/queries/payment";
+import { newError } from "../common/error";
 
 interface IParams extends Context {}
 
@@ -53,8 +54,29 @@ export default async (context: IParams) => {
     const isHaveFreeSubscription = await getFreeSubscription(user.id);
 
     if (!isHaveFreeSubscription) {
-      const subscribe = await createSubscription(user.id, Plan.FREE);
-      console.log("new FREE subscribe", subscribe);
+      const paymentFree = await createPayment({
+        ownerId: user.id,
+        typeProvider: PaymentTypeProvider.FREE,
+        typeSubscription: Plan.FREE,
+        paymentId: "free",
+      });
+
+      if (!paymentFree) {
+        newError(client, chatId, "Не удалось создать бесплатную подписку", "1");
+        return;
+      }
+
+      const subscribe = await createSubscription(
+        user.id,
+        Plan.FREE,
+        paymentFree.id
+      );
+
+      if (!subscribe) {
+        newError(client, chatId, "Не удалось создать бесплатную подписку", "2");
+        return;
+      }
+
       const key = await createKey(user.id);
 
       await client.execute("send_message", {

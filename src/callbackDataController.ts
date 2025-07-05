@@ -1,10 +1,11 @@
 import freePlan from "./buttons/freePlan";
+import monthPlan from "./buttons/monthPlan";
 import commandController from "./commandController";
 import keys from "./commands/keys";
 import { Buttons, Commands, Context, Plan } from "./types";
 
 export default async (context: Context) => {
-  console.log("query", context.callbackQueryData?.text);
+  //   console.log("query", context.callbackQueryData?.text);
 
   const res = await commandController(context, context.callbackQueryData?.text);
 
@@ -21,6 +22,9 @@ export default async (context: Context) => {
       break;
     case Plan.FREE:
       freePlan(context);
+      break;
+    case Plan.MONTH:
+      monthPlan(context);
       break;
     case Commands.KEYS:
       keys(context);

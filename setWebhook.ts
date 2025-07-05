@@ -14,7 +14,7 @@ const client = makeTgBotClient({
 client
   .execute("set_webhook", {
     url: process.env.TELEGRAM_WEBHOOK_URL,
-    allowed_updates: ["message", "callback_query"],
+    allowed_updates: ["message", "callback_query", "pre_checkout_query"],
   })
   .then(() => {
     console.log("Webhook set successfully");

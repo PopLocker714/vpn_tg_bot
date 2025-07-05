@@ -1,10 +1,21 @@
 import { Hono } from "hono";
-import { makeTgBotClient, Update } from "@effect-ak/tg-bot-client";
+import {
+  makeTgBotClient,
+  MESSAGE_EFFECTS,
+  Update,
+} from "@effect-ak/tg-bot-client";
 import getContext from "./common/getContext";
 import commandController from "./commandController";
 import callbackDataController from "./callbackDataController";
 import { startFast } from "./commands/start";
-import { Commands } from "./types";
+import { Commands, PaymentTypeProvider } from "./types";
+import { createSubscription } from "./db/queries/subscriptions";
+import { createPayment } from "./db/queries/payment";
+import { newError } from "./common/error";
+import { createKey, getKeys } from "./db/queries/keys";
+import generateKey from "./common/generateKey";
+import preCheckoutQueryController from "./preCheckoutQueryController";
+import successfulPaymentController from "./successfulPaymentController";
 
 const app = new Hono();
 
@@ -23,6 +34,7 @@ app.get("/", (c) => {
 app.post("*", async (c) => {
   const body: Update = await c.req.json();
   const text = body.message?.text || "";
+  console.log("body", body);
 
   if (
     text === Commands.START &&
@@ -50,6 +62,14 @@ app.post("*", async (c) => {
     await callbackDataController(context);
   }
 
+  if (context.preCheckoutQueryData) {
+    await preCheckoutQueryController(context);
+  }
+
+  if (context.successfulPayment) {
+    await successfulPaymentController(context);
+  }
+
   return new Response("ok");
 });
 
@@ -59,14 +79,14 @@ Bun.serve({
   tls: {
     certFile: "ssl/cert.pem",
     keyFile: "ssl/privkey.pem",
-  }
+  },
 });
 
 Bun.serve({
   port: 80,
   fetch(req) {
     const url = new URL(req.url);
-    url.protocol = 'https:';
+    url.protocol = "https:";
     return new Response(null, {
       status: 301,
       headers: {

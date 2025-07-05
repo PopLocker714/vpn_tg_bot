@@ -1,5 +1,5 @@
 import { makeTgBotClient, Update } from "@effect-ak/tg-bot-client";
-import { Context } from "../types";
+import { Context, Plan } from "../types";
 import registerTgUser from "./registerTgUser";
 import { getUser, getUserByTgId } from "../db/queries/user";
 
@@ -35,6 +35,29 @@ export default async (
 
     // const user = existingUser.user || (await getUserByTgId(tgUser));
 
+    if (body.message.successful_payment) {
+      console.log(
+        "----------successful_payment-----------",
+        body.message.successful_payment
+      );
+
+      const { provider_payment_charge_id, currency, total_amount, invoice_payload } =
+        body.message.successful_payment;
+
+      return {
+        tgUser,
+        user,
+        client,
+        chatId,
+        successfulPayment: {
+          provider_payment_charge_id,
+          currency,
+          total_amount,
+          invoice_payload: invoice_payload as Plan
+        },
+      };
+    }
+
     if (!command) {
       return {
         tgUser,
@@ -51,6 +74,32 @@ export default async (
       user,
       commandData: {
         text: command,
+      },
+    };
+  }
+
+  if (body.pre_checkout_query) {
+    const chatId = body.pre_checkout_query.from.id;
+    const tgUser = body.pre_checkout_query.from;
+    const preCheckoutQueryId = body.pre_checkout_query.id;
+
+    const user = await getUserByTgId(tgUser).then(async (user) => {
+      if (!user) {
+        return (await registerTgUser(tgUser)).user;
+      }
+      return user;
+    });
+
+    return {
+      client,
+      chatId,
+      tgUser,
+      user,
+      preCheckoutQueryData: {
+        id: preCheckoutQueryId,
+        currency: body.pre_checkout_query.currency,
+        total_amount: body.pre_checkout_query.total_amount,
+        from: tgUser,
       },
     };
   }

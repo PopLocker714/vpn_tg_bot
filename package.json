@@ -8,10 +8,12 @@
   "dependencies": {
     "@effect-ak/tg-bot-client": "^0.6.2",
     "drizzle-orm": "^0.44.2",
+    "effect": "^3.16.8",
     "hono": "^4.7.5"
   },
   "devDependencies": {
     "@types/bun": "^1.2.16",
+    "better-sqlite3": "^12.2.0",
     "drizzle-kit": "^0.31.1"
   }
 }

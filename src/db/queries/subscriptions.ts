@@ -26,11 +26,20 @@ export const getFreeSubscription = async (
   return _subscriptions.find((subscription) => subscription.plan === Plan.FREE);
 };
 
-export const createSubscription = async (userId: number, plan: Plan) => {
-  return await db.insert(subscriptionsTable).values({
-    ownerId: userId,
-    plan,
-  });
+export const createSubscription = async (
+  userId: number,
+  plan: Plan,
+  paymentDataId: number
+) => {
+  return await db
+    .insert(subscriptionsTable)
+    .values({
+      ownerId: userId,
+      plan,
+      paymentDataId
+    })
+    .returning()
+    .then((result) => result.at(0));
 };
 
 export const setExpiredSubscription = async (id: number) => {
