@@ -1,59 +1,41 @@
-import { makeTgBotClient, User } from "@effect-ak/tg-bot-client";
-import { SUser } from "./db/schema";
+import { Api } from '@effect-ak/tg-bot-client';
+import { TLogger } from './utils/logger';
+import { ExitResultError, ExitResultSuccess } from './lib/botApi/types';
+import { DB, DB_TX } from 'db';
+import { Context } from './lib/context/types';
 
-export const enum Commands {
-  START = "/start",
-  SUBSCRIBE = "/subscribe",
-  MENU = "/menu",
-  KEYS = "/keys",
+export interface Utils {
+    logger: TLogger;
+    execBotMethod: <M extends keyof Api>(
+        method: M,
+        input: Parameters<Api[M]>[0]
+    ) => Promise<ExitResultError | ExitResultSuccess<M>>;
+    db: DB | DB_TX;
 }
 
-export const enum Plan {
-  FREE = "3d",
-  MONTH = "1m",
-  THREE_MONTH = "3m",
-  YEAR = "1y",
+export interface IBaseProps {
+    context: Context;
+    utils: Utils;
 }
 
-export const enum PaymentTypeProvider {
-  FREE = "free",
-  YKASSA = "YKassa",
+export enum Commands {
+    START = '/start',
+    SUBSCRIBE = '/subscribe',
 }
 
-export const enum VpnServerLocation {
-  USA = "USA",
-  UK = "UK",
-  Germany = "Germany",
+export enum Plan {
+    FREE = 'free',
+    SUBSCRIBE_1 = 'month',
+    SUBSCRIBE_2 = '3month',
+    SUBSCRIBE_3 = 'year',
 }
 
-export const enum Buttons {
-  OUTLINE_VPN = "OUTLINE_VPN",
+export enum Protocol {
+    VLESS = 'vless',
+    SHADOWSOCKS = 'shadowsocks',
 }
 
-export interface Context {
-  client: ReturnType<typeof makeTgBotClient>;
-  chatId: number;
-  tgUser: User;
-  user: SUser;
-  commandData?: {
-    text: string;
-  };
-  successfulPayment?: {
-    provider_payment_charge_id: string;
-    currency: string;
-    total_amount: number;
-    invoice_payload: Plan;
-  };
-  callbackQueryData?: {
-    text: string;
-    id: string;
-  };
-  preCheckoutQueryData?: {
-    id: string;
-    from: User;
-    currency: string;
-    total_amount: number;
-  };
-  messageId?: number;
-  error?: string;
-}
+export const FREE_TIME = 66000;
+export const MONTH = 30 * 24 * 60 * 60 * 1000;
+export const THREE_MONTH = 90 * 24 * 60 * 60 * 1000;
+export const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;

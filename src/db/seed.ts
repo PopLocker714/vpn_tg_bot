@@ -1,46 +1,40 @@
-import { eq } from "drizzle-orm";
-import { db } from ".";
-import { vpnServersTable } from "./schema";
-import { VpnServerLocation } from "../types";
-
-const servers = [
-  {
-    id: 1,
-    name: "Outline",
-    location: VpnServerLocation.Germany,
-    ip: "1.1.1.1",
-  },
-  { id: 2, name: "Shadow vpn", location: VpnServerLocation.UK, ip: "2.2.2.2" },
-  {
-    id: 3,
-    name: "Wireguard vpn",
-    location: VpnServerLocation.USA,
-    ip: "3.3.3.3",
-  },
-];
+import { db } from '.';
+import { $ServersSchema } from './schemas/servers.schema';
+import { $SubscriptionTypeSchema } from './schemas/subscriptionType.schema';
+import { Plan, Protocol } from 'types';
 
 const seed = async () => {
-  await db
-    .insert(vpnServersTable)
-    .values(servers)
-    .then((result) => {
-      console.log("Seeded VPN servers:", result);
-    })
-    .catch(async (error) => {
-      console.log(error.message);
+    await db
+        .insert($SubscriptionTypeSchema)
+        .values([
+            {
+                type: Plan.FREE,
+            },
+            {
+                type: Plan.SUBSCRIBE_1,
+            },
+            {
+                type: Plan.SUBSCRIBE_2,
+            },
+            {
+                type: Plan.SUBSCRIBE_3,
+            },
+        ])
+        .catch((error) => {
+            console.log(error.message);
+        });
 
-      for await (const server of servers) {
-        await db
-          .update(vpnServersTable)
-          .set({
-            name: server.name,
-            location: server.location,
-            ip: server.ip,
-          })
-          .where(eq(vpnServersTable.id, server.id));
-      }
-      console.log("VPN servers updated successfully.");
-    });
+    await db.insert($ServersSchema).values([
+        {
+            ip: '206.166.251.108',
+            name: '🇳🇱 Netherlands',
+            max_keys: 50,
+            protocols: [Protocol.VLESS],
+        },
+    ]);
+
+    Bun.color('green', 'ansi-256');
+    console.log('Seed Done!');
 };
 
 seed();

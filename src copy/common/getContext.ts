@@ -1,7 +1,7 @@
 import { makeTgBotClient, Update } from "@effect-ak/tg-bot-client";
 import { Context, Plan } from "../types";
 import registerTgUser from "./registerTgUser";
-import { getUser, getUserByTgId } from "../db/queries/user";
+import { getUserByTgId } from "../db/queries/user";
 
 const userEmptyData = {
   user: { createdAt: 0, id: 0 },
@@ -33,16 +33,13 @@ export default async (
 
     const { user } = await registerTgUser(tgUser);
 
-    // const user = existingUser.user || (await getUserByTgId(tgUser));
-
     if (body.message.successful_payment) {
-      console.log(
-        "----------successful_payment-----------",
-        body.message.successful_payment
-      );
-
-      const { provider_payment_charge_id, currency, total_amount, invoice_payload } =
-        body.message.successful_payment;
+      const {
+        provider_payment_charge_id,
+        currency,
+        total_amount,
+        invoice_payload,
+      } = body.message.successful_payment;
 
       return {
         tgUser,
@@ -53,7 +50,7 @@ export default async (
           provider_payment_charge_id,
           currency,
           total_amount,
-          invoice_payload: invoice_payload as Plan
+          invoice_payload: invoice_payload as Plan,
         },
       };
     }

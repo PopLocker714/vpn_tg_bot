@@ -1,8 +1,17 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "lib": ["es2021"]
-    // "jsx": "react-jsx",
-    // "jsxImportSource": "hono/jsx"
-  }
+    "compilerOptions": {
+        "baseUrl": "src",
+        "strict": true,
+        "lib": [
+            "ES2024"
+        ],
+        "allowImportingTsExtensions": true,
+        "paths": {
+            "@/utils/*": ["utils/*"],
+            "@/lib/*": ["lib/*"]
+        }
+    },
+    "include": [
+        "src"
+    ]
 }
