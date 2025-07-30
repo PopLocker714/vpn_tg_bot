@@ -7,7 +7,7 @@ import logger from './utils/logger';
 import { Utils } from 'types';
 import mainController from 'api/mainController';
 import { db } from 'db/index';
-import register from './lib/register';
+import { AdminSecretManager } from './utils/encrypt';
 
 checkValidEnv();
 
@@ -17,6 +17,7 @@ const utils: Utils = {
     logger,
     execBotMethod: executeTgBotMethod,
     db,
+    cryptoManager: new AdminSecretManager(Bun.env.ADMIN_SECRET_KEY),
 };
 
 const app = new Hono();

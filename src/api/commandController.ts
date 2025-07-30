@@ -3,14 +3,14 @@ import { Commands, IBaseProps } from 'types';
 import startCommand from './commands/start.command';
 import subscribeCommand from './commands/subscribe.command';
 
-export default ({ context, utils }: IBaseProps) => {
+export default async ({ context, utils }: IBaseProps) => {
     const { execBotMethod } = utils;
     switch (context.command) {
         case Commands.START:
             startCommand({ context, utils });
             break;
         case Commands.SUBSCRIBE:
-            subscribeCommand({ context, utils });
+            await subscribeCommand({ context, utils });
             break;
 
         default:

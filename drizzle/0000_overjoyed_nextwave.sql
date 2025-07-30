@@ -7,13 +7,26 @@ CREATE TABLE `payment_data` (
 	FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `admin_secrets` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`encrypted_data` text NOT NULL,
+	`iv` text NOT NULL,
+	`auth_tag` text NOT NULL,
+	`salt` text NOT NULL,
+	`iterations` integer NOT NULL,
+	`hash_algorithm` text NOT NULL,
+	`description` text,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `servers` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
-	`ip` text NOT NULL,
-	`domain` text,
 	`protocols` text,
-	`max_keys` integer NOT NULL
+	`max_keys` integer NOT NULL,
+	`credentials` integer,
+	FOREIGN KEY (`credentials`) REFERENCES `admin_secrets`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `subscriptions` (

@@ -1,14 +1,15 @@
 import { CtxCallbackQuery } from '@/lib/context/types';
 import { Plan, Utils } from 'types';
 import freeSubscribe from './subscribes/free.subscribe';
+import serverDataController from './serverDataController';
 
-export default (ctx: CtxCallbackQuery, utils: Utils) => {
-    const { chat_id, callback_query_id, callback_data } = ctx;
+export default async (context: CtxCallbackQuery, utils: Utils) => {
+    const { chat_id, callback_query_id, callback_data } = context;
     const { execBotMethod } = utils;
 
     switch (callback_data) {
         case Plan.FREE:
-            freeSubscribe(ctx, utils);
+            freeSubscribe({ context, utils });
             break;
         case Plan.SUBSCRIBE_1:
             execBotMethod('send_message', {
@@ -32,12 +33,8 @@ export default (ctx: CtxCallbackQuery, utils: Utils) => {
         default:
             if (callback_data.startsWith('connect_')) {
                 const serverId = callback_data.split('_')[1];
-                execBotMethod('send_message', {
-                    chat_id,
-                    text: `Connecting to server with ID: ${serverId} generate key...`,
-                });
 
-
+                serverDataController({ context, utils }, parseInt(serverId));
 
                 break;
             }

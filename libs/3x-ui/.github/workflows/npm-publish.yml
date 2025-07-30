@@ -1,0 +1,67 @@
+name: 3x-ui Package
+
+on:
+    workflow_dispatch:
+    release:
+        types:
+            - created
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Install expect
+              run: sudo apt-get update && sudo apt-get install -y expect
+
+            - name: Install 3x-ui
+              run: |
+                  curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh -o install.sh
+                  chmod +x install.sh
+                  expect << EOF | tee install_output.log
+                  spawn sudo ./install.sh
+                  expect {
+                    "*(If not, a random port will be applied)*" { send "n\r" }
+                  }
+
+                  expect eof
+                  EOF
+
+                  USERNAME=$(grep "Username:" install_output.log | sed 's/.*Username: //')
+                  PASSWORD=$(grep "Password:" install_output.log | sed 's/.*Password: //')
+                  PORT=$(grep "Port:" install_output.log | sed 's/.*Port: //')
+                  WEB_BASE_PATH=$(grep "WebBasePath:" install_output.log | sed 's/.*WebBasePath: //')
+
+                  CLEAN_WEB_BASE_PATH=$(echo "$WEB_BASE_PATH" | tr -d '\n' | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g')
+                  CLEAN_USERNAME=$(echo "$USERNAME" | tr -d '\n' | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g')
+                  CLEAN_PASSWORD=$(echo "$PASSWORD" | tr -d '\n' | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g')
+                  CLEAN_PORT=$(echo "$PORT" | tr -d '\n' | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g')
+
+                  JSON_OUTPUT=$(cat <<EOF
+                  {
+                    "username": "$CLEAN_USERNAME",
+                    "password": "$CLEAN_PASSWORD",
+                    "port": "$CLEAN_PORT",
+                    "webBasePath": "$CLEAN_WEB_BASE_PATH"
+                  }
+                  EOF
+                  )
+
+                  echo "$JSON_OUTPUT" > tests/server.json
+
+                  cat tests/server.json
+                  sudo x-ui status
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+                  registry-url: "https://registry.npmjs.org/"
+
+            - run: npm ci
+            - run: npm test
+            - run: npm run build
+            - run: npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.npm_token}}

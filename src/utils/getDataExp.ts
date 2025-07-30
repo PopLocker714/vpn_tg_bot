@@ -14,7 +14,7 @@ import { FREE_TIME, MONTH, ONE_YEAR, Plan, THREE_MONTH } from 'types';
 //     }
 // };
 
-export default (startData: number, type: Plan): string => {
+export default (startData: Date, type: Plan): string => {
     let durationMillis = 0;
     const startDate = new Date(startData);
 
@@ -39,12 +39,23 @@ export default (startData: number, type: Plan): string => {
     const MS_PER_DAY = 1000 * 60 * 60 * 24;
     const MS_PER_HOUR = 1000 * 60 * 60;
 
-    const days = Math.floor(durationMillis / MS_PER_DAY);
-    const remainingMillisAfterDays = durationMillis % MS_PER_DAY;
-    const hours = Math.floor(remainingMillisAfterDays / MS_PER_HOUR);
-    const remainingMinuts = remainingMillisAfterDays % MS_PER_HOUR;
-    const minuts = Math.floor(remainingMinuts / (1000 * 60));
-    const seconds = Math.floor((remainingMinuts % (1000 * 60)) / 1000);
+    const days =
+        Math.floor(durationMillis / MS_PER_DAY) -
+        Math.floor(startDate.getTime() / MS_PER_DAY);
+    const remainingMillisAfterDays =
+        (durationMillis % MS_PER_DAY) + (startDate.getTime() % MS_PER_DAY);
+    const hours =
+        Math.floor(remainingMillisAfterDays / MS_PER_HOUR) -
+        (Math.floor(startDate.getTime() / MS_PER_HOUR) % 24);
+    const remainingMinuts =
+        (remainingMillisAfterDays % MS_PER_HOUR) +
+        (startDate.getTime() % MS_PER_HOUR);
+    const minuts =
+        Math.floor(remainingMinuts / (1000 * 60)) -
+        (Math.floor(startDate.getTime() / (1000 * 60)) % 60);
+    const seconds =
+        Math.floor((remainingMinuts % (1000 * 60)) / 1000) -
+        (Math.floor(startDate.getTime() / 1000) % 60);
 
     return `${days}d ${hours}h ${minuts}m ${seconds}s`;
 };

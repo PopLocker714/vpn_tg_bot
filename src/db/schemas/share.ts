@@ -1,10 +1,10 @@
-import { int } from "drizzle-orm/sqlite-core";
+import { int } from 'drizzle-orm/sqlite-core';
 
-export const created_at = int()
-  .$defaultFn(() => Date.now())
-  .notNull();
+export const created_at = int({ mode: 'timestamp_ms' })
+    .$defaultFn(() => new Date())
+    .notNull();
 
-export const updated_at = int()
-  .notNull()
-  .$defaultFn(() => Date.now())
-  .$onUpdateFn(() => Date.now());
+export const updated_at = int({ mode: 'timestamp_ms' })
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date())
+    .notNull();

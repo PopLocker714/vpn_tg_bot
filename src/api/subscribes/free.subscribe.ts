@@ -5,10 +5,10 @@ import createPayment from 'db/queries/payment/createPayment';
 import getPaymentByProvider from 'db/queries/payment/getPaymentByProvider';
 import getAvailableServers from 'db/queries/servers/getAvailableServers';
 import createSubscribe from 'db/queries/subscribe/createSubscribe';
-import { Plan, Utils } from 'types';
+import { IBaseProps, Plan } from 'types';
 
-export default async (ctx: CtxCallbackQuery, utils: Utils) => {
-    const _user = await ctx._user;
+export default async ({ context, utils }: IBaseProps) => {
+    const _user = await context._user;
     const { execBotMethod } = utils;
 
     try {
@@ -24,7 +24,7 @@ export default async (ctx: CtxCallbackQuery, utils: Utils) => {
 
         if (existingPayment) {
             utils.execBotMethod('send_message', {
-                chat_id: ctx.chat_id,
+                chat_id: context.chat_id,
                 text: 'Вы уже подписаны на бесплатный тариф или он истек.',
             });
             return;
@@ -64,7 +64,7 @@ export default async (ctx: CtxCallbackQuery, utils: Utils) => {
         );
 
         await execBotMethod('send_message', {
-            chat_id: ctx.chat_id,
+            chat_id: context.chat_id,
             parse_mode: 'MarkdownV2',
             text: `Пробный период активирован и истечет через *${getDataExp(
                 payment.created_at,
@@ -78,14 +78,14 @@ export default async (ctx: CtxCallbackQuery, utils: Utils) => {
 
         if (!servers) {
             await execBotMethod('send_message', {
-                chat_id: ctx.chat_id,
+                chat_id: context.chat_id,
                 text: 'Не удалось получить доступные сервера.',
             });
             return;
         }
 
         await execBotMethod('send_message', {
-            chat_id: ctx.chat_id,
+            chat_id: context.chat_id,
             parse_mode: 'MarkdownV2',
             text: `Выберите локацию для подключения к VPN:`,
             reply_markup: {
@@ -95,39 +95,9 @@ export default async (ctx: CtxCallbackQuery, utils: Utils) => {
                         callback_data: `connect_${server.id}`,
                     },
                 ]),
-            }
+            },
         });
-
-        console.log({ payment, subscribe });
     } catch (error) {
         console.log('Error in buyFreeSub:', error);
     }
-
-    // const res = await buyFreeSub(undefined, utils).catch((error) => {
-    //     console.log('Error in buyFreeSub:', error);
-    //     utils.logger.error('Error in buyFreeSub:', error);
-    // });
-
-    // if (_user) {
-    //     const payment = await createPayment(utils, {
-    //         owner_id: _user.id,
-    //         payment_id: 'free',
-    //         provider: 'free',
-    //     });
-
-    //     if (payment) {
-    //         utils.execBotMethod('send_message', {
-    //             chat_id: ctx.chat_id,
-    //             parse_mode: 'MarkdownV2',
-    //             text: `Ваша подписка продлиться *${getDataExp(
-    //                 payment.created_at,
-    //                 Plan.FREE
-    //             )}* `,
-    //         });
-    //     }
-    // } else {
-    //     utils.logger.error(
-    //         'free.subscribe: При создании платежа не нашли пользователя'
-    //     );
-    // }
 };

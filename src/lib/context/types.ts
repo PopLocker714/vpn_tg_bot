@@ -14,7 +14,7 @@ interface Ctx {
     _user?: Promise<SelectRelUser>;
     command?: Commands;
     callback_query_id?: string;
-    callback_data?: Plan;
+    callback_data?: Plan | string;
 }
 
 export interface CtxMessage extends Ctx {

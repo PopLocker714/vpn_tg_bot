@@ -1,31 +1,35 @@
 {
-  "name": "vpn",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "migrate": "bunx drizzle-kit generate && bun run src/db/migrate.ts && bun run src/db/seed.ts",
-    "setwebhook": "bun run setWebhook.ts",
-    "proxy": "ngrok http 443 --url live-frog-radically.ngrok-free.app",
-    "studio": "bunx drizzle-kit studio",
-    "drop": "rm -rf drizzle && rm mydb.sqlite && bun run migrate"
-  },
-  "dependencies": {
-    "@effect-ak/tg-bot-client": "^0.6.2",
-    "drizzle-orm": "^0.44.2",
-    "effect": "^3.16.8",
-    "hono": "^4.7.5",
-    "winston": "^3.17.0"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.2.16",
-    "@types/node": "^24.0.12",
-    "better-sqlite3": "^12.2.0",
-    "biome": "^0.3.3",
-    "drizzle-kit": "^0.31.1"
-  },
-  "module": "src/index.ts",
-  "type": "module",
-  "private": true,
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+    "name": "vpn",
+    "scripts": {
+        "dev": "bun run --hot src/index.ts",
+        "migrate": "bunx drizzle-kit generate && bun run src/db/migrate.ts && bun run src/db/seed.ts",
+        "setwebhook": "bun run setWebhook.ts",
+        "proxy": "ngrok http 443 --url live-frog-radically.ngrok-free.app",
+        "studio": "bunx drizzle-kit studio",
+        "drop": "rm -rf drizzle && rm mydb.sqlite && bun run migrate",
+        "postinstall": "patch-package"
+    },
+    "dependencies": {
+        "@effect-ak/tg-bot-client": "^0.6.2",
+        "drizzle-orm": "^0.44.2",
+        "effect": "^3.16.8",
+        "hono": "^4.7.5",
+        "patch-package": "^8.0.0",
+        "postinstall-postinstall": "^2.1.0",
+        "winston": "^3.17.0",
+        "3x-ui": "file:libs/3x-ui"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.2.16",
+        "@types/node": "^24.0.12",
+        "better-sqlite3": "^12.2.0",
+        "biome": "^0.3.3",
+        "drizzle-kit": "^0.31.1"
+    },
+    "module": "src/index.ts",
+    "type": "module",
+    "private": true,
+    "peerDependencies": {
+        "typescript": "^5"
+    }
 }
